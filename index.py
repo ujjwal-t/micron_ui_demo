@@ -31,6 +31,7 @@ app.layout = html.Div(
 )
 
 
+# URL paths
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def display_page(pathname):
     if pathname == "/":
@@ -41,12 +42,13 @@ def display_page(pathname):
             return experiment_history.layout
     elif pathname == "/login":
         return login_page
-    if pathname == "/experiment_history":
+    elif pathname == "/experiment_history":
         return experiment_history.layout
     else:
         return "404 Page Error! Please choose a link"
 
 
+# Login
 @app.callback(
     [Output("url", "pathname"), Output("login-alert", "children")],
     [Input("login-button", "n_clicks")],
@@ -71,33 +73,23 @@ def login_auth(n_clicks, email, pw):
     )
 
 
-@app.callback(
-    Output("login", "pathname"),
-    [Input("logout-button", "n_clicks")],
-)
-def logout_(n_clicks):
-    """clear the session and send user to login"""
-    print("logout")
-    if n_clicks is None or n_clicks == 0:
-        return no_update
-    session["authed"] = False
-    return "/login"
-
-
+# Login / Logout button
 @app.callback(
     [
-        Output("user-action", "children"),
-        Output("user-action", "href"),
+        Output("user_action", "children"),
+        Output("user_action", "href"),
+        Output("user_name", "children"),
     ],
     [Input("page-content", "children")],
 )
 def user_logout(input1):
     print("user_logout: ", session)
-    if ("authed" not in session.keys()) or (session["authed"]):
+    if ("authed" not in session.keys()) or (not session["authed"]):
         print("logout")
-        return "logout", "/login"
+        return "login", "/login", "User"
     else:
-        return "login", "/login"
+        session["authed"] = False
+        return "logout", "/login", session["username"]
 
 
 # Run the app on localhost:8050
