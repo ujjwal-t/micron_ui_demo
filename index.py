@@ -8,13 +8,10 @@ import dash_bootstrap_components as dbc
 # Connect to main app.py file
 from app import app
 
-# Connect to your app pages
-from pages import experiment_history
-
 # Connect the navbar to the index
 from components import login, navbar
 from pages.auth import authenticate_user, validate_login_session
-
+from pages.experiment_history import get_exp_page_layout
 
 # define the navbar
 
@@ -39,11 +36,11 @@ def display_page(pathname):
         if ("authed" not in session.keys()) or (session["authed"] is False):
             return login_page
         else:
-            return experiment_history.layout
+            return get_exp_page_layout()
     elif pathname == "/login":
         return login_page
     elif pathname == "/experiment_history":
-        return experiment_history.layout
+        return get_exp_page_layout()
     else:
         return "404 Page Error! Please choose a link"
 
