@@ -1,6 +1,8 @@
 from dash import Dash, dcc, html, Input, Output, callback
 from pages.auth import validate_login_session
 import dash_bootstrap_components as dbc
+import plotly.graph_objs as go
+import dash_renderjson
 
 
 # @validate_login_session
@@ -71,7 +73,7 @@ def get_exp_details_layout(exp_id):
                         style={
                             "display": "inline",
                             # "float": "right",
-                            "margin-left": "55%",
+                            "margin-left": "50%",
                             # "margin-left": "auto",
                             "margin-right": "2%",
                         },
@@ -80,8 +82,8 @@ def get_exp_details_layout(exp_id):
                 # style={"display": "inline"},
             ),
             dcc.Tabs(
-                id="tabs-example-graph",
-                value="tab-1-example-graph",
+                id="tabs",
+                value="summary_tab",
                 children=[
                     dcc.Tab(label="Summary", value="summary_tab"),
                     dcc.Tab(label="Config", value="config_tab"),
@@ -90,43 +92,74 @@ def get_exp_details_layout(exp_id):
                         value="warm_up_training_tab",
                     ),
                     dcc.Tab(label="Fine tuning", value="fine_tuning_tab"),
-                    dcc.Tab(label="Results", value="result_tab"),
+                    dcc.Tab(label="Results", value="results_tab"),
                 ],
             ),
-            html.Div(id="tabs-content-example-graph"),
+            html.Div(id="tabs-content"),
         ]
     )
 
 
+def get_data():
+    return {"a": 1, "b": [1, 2, 3, {"c": 4}]}
+
+
 @callback(
-    Output("tabs-content-example-graph", "children"),
-    Input("tabs-example-graph", "value"),
+    Output("tabs-content", "children"),
+    Input("tabs", "value"),
 )
 def render_content(tab):
-    if tab == "tab-1-example-graph":
+    if (tab == "summary_tab") or (tab == "results_tab"):
+        heading = "Summary" if (tab == "summary_tab") else "Results"
         return html.Div(
             [
-                html.H3("Tab content 1"),
+                html.H3(heading),
                 dcc.Graph(
                     figure={
                         "data": [
-                            {"x": [1, 2, 3], "y": [3, 1, 2], "type": "bar"}
-                        ]
+                            {
+                                "x": [i for i in range(10)],
+                                "y": [
+                                    0,
+                                    20,
+                                    25,
+                                    50,
+                                    90,
+                                    91,
+                                    92,
+                                    93,
+                                    94,
+                                    95,
+                                    96,
+                                    97,
+                                    98,
+                                    99,
+                                ],
+                                "type": "scatter",
+                                "name": "SF",
+                            },
+                        ],
+                        "layout": {
+                            "title": "Test case vs coverage plot",
+                            "ytitle": "Coverage",
+                            "x": "test_case",
+                        },
                     }
                 ),
             ]
         )
-    elif tab == "tab-2-example-graph":
+    elif tab == "config_tab":
         return html.Div(
             [
-                html.H3("Tab content 2"),
-                dcc.Graph(
-                    id="graph-2-tabs-dcc",
-                    figure={
-                        "data": [
-                            {"x": [1, 2, 3], "y": [5, 10, 6], "type": "bar"}
-                        ]
-                    },
+                html.Br(),
+                html.H3("config"),
+                html.Br(),
+                dash_renderjson.DashRenderjson(
+                    id="input",
+                    data=get_data(),
+                    max_depth=-1,
+                    invert_theme=True,
                 ),
-            ]
+            ],
+            style={"margin-left": "5%"},
         )

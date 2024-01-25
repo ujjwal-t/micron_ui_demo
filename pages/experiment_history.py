@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output, State
 from dash import dcc, html, no_update
 import pandas as pd
 from pages.auth import validate_login_session
+import time
 
 
 def get_data_from_db():
@@ -30,13 +31,13 @@ def get_data_from_db():
     df1["description"] = df1["description"].apply(lambda x: "By user2 " + x)
     df = pd.concat([df, df1], axis=0)
     df["dut_name"] = df["dut_name"].apply(
-        lambda x: f"[{x}](http://127.0.0.1:8050/experiment_details/{'20_'+x})"
+        lambda x: f"[{x}](http://127.0.0.1:8050/experiment_details?exp_id={'20_'+x})"
     )
     return df
 
 
 # Define the page layout
-@validate_login_session
+# @validate_login_session
 def get_exp_page_layout():
     df = get_data_from_db()
     layout = dbc.Container(
@@ -134,3 +135,20 @@ def update_columns(value, columns):
         }
     )
     return columns
+
+
+@callback(
+    Output("url", "href", allow_duplicate=True),
+    [Input("dut_name", "n_clicks_timestamp")],
+    prevent_initial_call=True,
+)
+def render_content(n_clicks_timestamp):
+    print(
+        (n_clicks_timestamp is not None)
+        and (abs(n_clicks_timestamp / 10**3 - time.time()))
+    )
+    if (n_clicks_timestamp is not None) and (
+        abs(n_clicks_timestamp / 10**3 - time.time()) < 5000
+    ):
+        return "/experiment_history"
+    return no_update

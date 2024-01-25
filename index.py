@@ -7,13 +7,15 @@ import dash_bootstrap_components as dbc
 
 # Connect to main app.py file
 from app import app
-import furl
+from furl import furl
 
 # Connect the navbar to the index
 from components import login, navbar
 from pages.auth import authenticate_user, validate_login_session
 from pages.experiment_history import get_exp_page_layout
 from pages.experiment_details import get_exp_details_layout
+from pages.experiment_create import get_create_exp_layout
+import time
 
 # define the navbar
 
@@ -31,9 +33,13 @@ app.layout = html.Div(
 
 
 # URL paths
-@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-def display_page(pathname: str):
+@app.callback(
+    Output("page-content", "children"),
+    [Input("url", "pathname"), Input("url", "href")],
+)
+def display_page(pathname: str, href: str):
     if pathname == "/":
+        return get_create_exp_layout()
         if ("authed" not in session.keys()) or (session["authed"] is False):
             return login_page
         else:
@@ -42,8 +48,11 @@ def display_page(pathname: str):
         return login_page
     elif pathname == "/experiment_history":
         return get_exp_page_layout()
-    elif pathname.startswith("/experiment_details"):
-        exp_id = pathname.split("/")[-1]
+    elif pathname == "/experiment_details":
+        print(href)
+        f = furl(href)
+        exp_id = f.args["exp_id"]
+        print(exp_id)
         return get_exp_details_layout(exp_id)
     else:
         return "404 Page Error! Please choose a link"
