@@ -148,11 +148,6 @@ def render_content(tab):
                                 options=[
                                     {"label": "Yes", "value": 1},
                                     {"label": "No", "value": 2},
-                                    # {
-                                    #     "label": "Third disabled radio",
-                                    #     "value": 3,
-                                    #     "disabled": True,
-                                    # },
                                 ],
                             ),
                             width=10,
@@ -186,16 +181,6 @@ def render_content(tab):
                     ],
                     className="mb-3",
                 ),
-                html.Button(
-                    "Next",
-                    id="submit",
-                    n_clicks=0,
-                    style={
-                        "width": 185,
-                        "display": "inline-block",
-                        "padding-right": 80,
-                    },
-                ),
             ]
         )
     elif tab == "config_tab":
@@ -215,16 +200,15 @@ def render_content(tab):
         )
 
 
-@callback(
-    dash.dependencies.Output("tabs-create-exp", "active_tab"),
-    [
-        dash.dependencies.Input("submit", "n_clicks"),
-    ],
-)
-def on_click_val(click1):
-    btn = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-    # print(btn)
-    if btn == "submit":
-        return "gen_config_tab"
-    else:
-        return no_update
+# @callback(
+#     dash.dependencies.Output("tabs-create-exp", "active_tab"),
+#     [
+#         dash.dependencies.Input("submit", "n_clicks"),
+#     ],
+# )
+# def on_click_val(click1):
+#     btn = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+#     if btn == "submit":
+#         return "gen_config_tab"
+#     else:
+#         return no_update

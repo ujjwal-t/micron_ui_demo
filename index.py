@@ -39,7 +39,6 @@ app.layout = html.Div(
 )
 def display_page(pathname: str, href: str):
     if pathname == "/":
-        return get_create_exp_layout()
         if ("authed" not in session.keys()) or (session["authed"] is False):
             return login_page
         else:
@@ -49,11 +48,11 @@ def display_page(pathname: str, href: str):
     elif pathname == "/experiment_history":
         return get_exp_page_layout()
     elif pathname == "/experiment_details":
-        print(href)
         f = furl(href)
         exp_id = f.args["exp_id"]
-        print(exp_id)
         return get_exp_details_layout(exp_id)
+    elif pathname == "/experiment_create":
+        return get_create_exp_layout()
     else:
         return "404 Page Error! Please choose a link"
 

@@ -70,15 +70,11 @@ def Navbar():
 
 
 @callback(
-    Output("url", "href", allow_duplicate=True),
+    Output("url", "pathname", allow_duplicate=True),
     [Input("logo-tag", "n_clicks_timestamp")],
     prevent_initial_call=True,
 )
 def render_content(n_clicks_timestamp):
-    print(
-        (n_clicks_timestamp is not None)
-        and (abs(n_clicks_timestamp / 10**3 - time.time()))
-    )
     if (n_clicks_timestamp is not None) and (
         abs(n_clicks_timestamp / 10**3 - time.time()) < 5000
     ):

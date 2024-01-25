@@ -104,6 +104,11 @@ def get_exp_page_layout():
                                     "color": "black !important",
                                 },
                             ),
+                            dbc.Button(
+                                "New Experiment",
+                                id="create-exp",
+                                color="success",
+                            ),
                         ],
                     ),
                 ]
@@ -138,17 +143,27 @@ def update_columns(value, columns):
 
 
 @callback(
-    Output("url", "href", allow_duplicate=True),
+    Output("url", "pathname", allow_duplicate=True),
     [Input("dut_name", "n_clicks_timestamp")],
     prevent_initial_call=True,
 )
 def render_content(n_clicks_timestamp):
-    print(
-        (n_clicks_timestamp is not None)
-        and (abs(n_clicks_timestamp / 10**3 - time.time()))
-    )
     if (n_clicks_timestamp is not None) and (
         abs(n_clicks_timestamp / 10**3 - time.time()) < 5000
     ):
         return "/experiment_history"
     return no_update
+
+
+@callback(
+    Output("url", "pathname", allow_duplicate=True),
+    [
+        Input("create-exp", "n_clicks"),
+    ],
+    prevent_initial_call=True,
+)
+def on_click_val_2(click1):
+    if (click1 is not None) and (click1 > 0):
+        return "/experiment_create"
+    else:
+        return no_update
