@@ -30,26 +30,34 @@ def get_data_from_db():
     df1["description"] = df1["description"].apply(lambda x: "By user2 " + x)
     df = pd.concat([df, df1], axis=0)
     df["dut_name"] = df["dut_name"].apply(
-        lambda x: f"[{x}](http://127.0.0.1:8050/experiment_details?exp_id={x+'20'})"
+        lambda x: f"[{x}](http://127.0.0.1:8050/experiment_details/{'20_'+x})"
     )
-    return df.to_dict("records")
+    return df
 
 
 # Define the page layout
 @validate_login_session
 def get_exp_page_layout():
-    return dbc.Container(
+    df = get_data_from_db()
+    layout = dbc.Container(
         [
             dbc.Row(
                 [
                     html.Center(html.H1("List of historical experiments")),
                     html.Br(),
+                    html.H4("Select columns to add from the below dropdown"),
+                    dcc.Dropdown(
+                        id="dropdown",
+                        options=[
+                            {"label": id, "value": id} for id in df.columns
+                        ],
+                    ),
                     html.Hr(),
                     html.Div(
                         [
                             dash_table.DataTable(
-                                id="editing-prune-data",
-                                data=get_data_from_db(),
+                                id="table",
+                                data=df.to_dict("records"),
                                 editable=False,
                                 filter_action="native",
                                 page_action="native",
@@ -101,3 +109,28 @@ def get_exp_page_layout():
             )
         ]
     )
+    return layout
+
+
+@callback(
+    Output("table", "columns"),
+    [Input("dropdown", "value")],
+    [State("table", "columns")],
+)
+def update_columns(value, columns):
+    if value is None or columns is None:
+        return no_update
+
+    inColumns = any(c.get("id") == value for c in columns)
+
+    if inColumns:
+        return no_update
+
+    columns.append(
+        {
+            "name": value,
+            "id": value,
+            "deletable": True,
+        }
+    )
+    return columns

@@ -2,16 +2,18 @@
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 from dash import dcc, html, no_update
-from flask import session
+from flask import session, request
 import dash_bootstrap_components as dbc
 
 # Connect to main app.py file
 from app import app
+import furl
 
 # Connect the navbar to the index
 from components import login, navbar
 from pages.auth import authenticate_user, validate_login_session
 from pages.experiment_history import get_exp_page_layout
+from pages.experiment_details import get_exp_details_layout
 
 # define the navbar
 
@@ -30,9 +32,8 @@ app.layout = html.Div(
 
 # URL paths
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-def display_page(pathname):
+def display_page(pathname: str):
     if pathname == "/":
-        print("session: ", session)
         if ("authed" not in session.keys()) or (session["authed"] is False):
             return login_page
         else:
@@ -41,6 +42,9 @@ def display_page(pathname):
         return login_page
     elif pathname == "/experiment_history":
         return get_exp_page_layout()
+    elif pathname.startswith("/experiment_details"):
+        exp_id = pathname.split("/")[-1]
+        return get_exp_details_layout(exp_id)
     else:
         return "404 Page Error! Please choose a link"
 
@@ -80,9 +84,7 @@ def login_auth(n_clicks, email, pw):
     [Input("page-content", "children")],
 )
 def user_logout(input1):
-    print("user_logout: ", session)
     if ("authed" not in session.keys()) or (not session["authed"]):
-        print("logout")
         return "login", "/login", "User"
     else:
         session["authed"] = False
